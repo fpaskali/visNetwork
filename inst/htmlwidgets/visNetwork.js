@@ -1,5 +1,73 @@
 // Production steps of ECMA-262, Edition 6, 22.1.2.1
 // Référence : https://people.mozilla.org/~jorendorff/es6-draft.html#sec-array.from
+
+// Function to draw alpha shape
+function drawAlphaShape(instance, groupNodes) {
+  const ctx = instance.network.canvas.getContext();
+  const margin = 5; // Margin between the circles and the alpha shape
+  const points = [];
+  let color = "yellow";
+
+  groupNodes.forEach(function (node) {
+      const position = instance.network.getPositions([node.id])[node.id];
+      const size = instance.network.body.nodes[node.id].getFormattingValues().size;
+      color = instance.network.body.nodes[node.id].getFormattingValues().color;
+      for (let angle = 0; angle < 360; angle += 10) {
+          const radian = angle * (Math.PI / 180);
+          const x = position.x + (size + margin) * Math.cos(radian);
+          const y = position.y + (size + margin) * Math.sin(radian);
+          points.push({x: x, y: y});
+      }
+  });
+
+  // Simple alpha shape function to approximate the shape around the points
+  function alphaShape(points, alpha = 1.0) {
+      if (points.length < 3) return [];
+
+      points.sort((a, b) => a.x - b.x);
+
+      const lower = [];
+      for (const point of points) {
+          while (lower.length >= 2 && cross(lower[lower.length - 2], lower[lower.length - 1], point) <= 0) {
+              lower.pop();
+          }
+          lower.push(point);
+      }
+
+      const upper = [];
+      for (let i = points.length - 1; i >= 0; i--) {
+          const point = points[i];
+          while (upper.length >= 2 && cross(upper[upper.length - 2], upper[upper.length - 1], point) <= 0) {
+              upper.pop();
+          }
+          upper.push(point);
+      }
+
+      lower.pop();
+      upper.pop();
+      return lower.concat(upper);
+  }
+
+  function cross(o, a, b) {
+      return (a.x - o.x) * (b.y - o.y) - (a.y - o.y) * (b.x - o.x);
+  }
+
+  // Compute alpha shape and draw it
+  const shape = alphaShape(points);
+  if (shape.length > 0) {
+      ctx.globalAlpha = 0.1;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.moveTo(shape[0].x, shape[0].y);
+      shape.forEach(point => ctx.lineTo(point.x, point.y));
+      ctx.closePath();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      ctx.fill();
+  }
+}
+
 if (!Array.from) {
   Array.from = (function () {
     var toStr = Object.prototype.toString;
@@ -4359,6 +4427,20 @@ HTMLWidgets.widget({
         instance.network.once("stabilized", function(){iconsRedraw();})
       }
     }
+
+    // Redraw alpha shapes after network is drawn
+    instance.network.on('afterDrawing', function () {
+      instance.network.groups._groupNames.forEach(function(g) {
+        const gr = nodes.get({
+          filter: function (node) {
+            return node.group === g;
+          }
+        })
+        if (gr.length > 1) {
+          drawAlphaShape(instance, gr);
+        }
+      })
+    });
   }, 
   
   resize: function(el, width, height, instance) {
@@ -4366,6 +4448,7 @@ HTMLWidgets.widget({
         instance.network.fit();
       if(instance.legend)
         instance.legend.fit();
-  }
-  
+  },
 });
+
+
