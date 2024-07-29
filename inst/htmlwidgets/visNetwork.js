@@ -55,7 +55,7 @@ function drawAlphaShape(instance, groupNodes) {
   // Compute alpha shape and draw it
   const shape = alphaShape(points);
   if (shape.length > 0) {
-      ctx.globalAlpha = 0.1;
+      ctx.globalAlpha = 0.2;
       ctx.fillStyle = color;
       ctx.beginPath();
       ctx.moveTo(shape[0].x, shape[0].y);
@@ -65,6 +65,7 @@ function drawAlphaShape(instance, groupNodes) {
       ctx.lineWidth = 2;
       ctx.stroke();
       ctx.fill();
+      ctx.globalAlpha = 1;
   }
 }
 
@@ -4429,7 +4430,7 @@ HTMLWidgets.widget({
     }
 
     // Redraw alpha shapes after network is drawn
-    instance.network.on('afterDrawing', function () {
+    instance.network.on('beforeDrawing', function () {
       instance.network.groups._groupNames.forEach(function(g) {
         const gr = nodes.get({
           filter: function (node) {
