@@ -55,7 +55,7 @@ function drawAlphaShape(instance, groupNodes) {
   // Compute alpha shape and draw it
   const shape = alphaShape(points);
   if (shape.length > 0) {
-      ctx.globalAlpha = 0.2;
+      ctx.globalAlpha = 0.3;
       ctx.fillStyle = color;
       ctx.beginPath();
       ctx.moveTo(shape[0].x, shape[0].y);
