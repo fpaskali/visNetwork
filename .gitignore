@@ -2,3 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
+conda-bld
+work
+*.conda
+*.tar.bz2
+

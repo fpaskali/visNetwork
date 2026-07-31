@@ -1,0 +1,37 @@
+package:
+  name: r-visnetwork
+  version: 2.1.4
+source:
+  git_url: https://github.com/fpaskali/visNetwork.git
+  git_rev: 8c05235
+build:
+  number: '0'
+requirements:
+  host:
+    - r-base >=4.3
+    - r-htmlwidgets
+    - r-htmltools
+    - r-magrittr
+    - r-knitr
+    - r-rmarkdown
+    - r-jsonlite
+  run:
+    - r-base >=4.3
+    - r-htmltools
+    - r-htmlwidgets
+    - r-jsonlite
+    - r-magrittr
+test:
+  commands:
+    - $R -e "library(visNetwork)"
+about:
+  home: https://github.com/fpaskali/visNetwork
+  license: MIT
+  license_file: LICENSE
+  summary: Provides an R interface to the 'vis.js' JavaScript charting library. It
+    allows an interactive visualization of networks. This is custom version to extend
+    the functionality, e.g. it accepts metadata parameter for custom shapes and draws
+    alpha shape around nodes of a same group.
+extra:
+  recipe-maintainers:
+    - fpaskali
